@@ -1,0 +1,29 @@
+
+# POST http://127.0.0.1:8000/api/auth/logout/ HTTP/1.1
+# Authorization: Token 14ea4969acc666c35b68358bf79b73d8a4ceafba
+
+
+POST http://127.0.0.1:8000/api/auth/login/ 
+content-type: application/json
+X-CSRFToken: Odjhsc1SAXh8OvqgJ9EZbO9KGEi2GbPIhkR1YYj7AzqYLlTdDlWBv85t6RMFBSQY
+
+{
+    "username": "rich",
+    "password": "r1ch@dmin"
+}
+###
+GET http://127.0.0.1:8000/api/auth/csrf/
+###
+GET http://127.0.0.1:8000/api/auth/user/ 
+content-type: application/json
+
+
+###
+POST http://127.0.0.1:8000/api/cards/ 
+content-type: application/json
+X-CSRFToken: aPwYyPBB4AW4llPDwrsDhrTnsJvq1FjRQAJrkI1YBizgGjThlvqwRSzRc0RE8yBc
+
+{
+    "player_name": "C Better",
+    "card_number": "3"
+}
