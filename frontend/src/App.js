@@ -6,8 +6,8 @@ import GlobalStyles from 'src/components/GlobalStyles';
 import 'src/mixins/chartjs';
 import theme from 'src/theme';
 import AppRoutes from 'src/appRoutes';
-import { useAuthState} from "./contexts";
-import { SnackBarProvider } from './contexts/SnackbarContext';
+import { useAuthState} from "./contexts/Auth";
+import { SnackBarProvider } from './contexts/Snackbar/SnackbarContext';
 
 const App = () => {
   const location = useLocation();

@@ -15,9 +15,9 @@ import {
   makeStyles
 } from '@material-ui/core';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import { Alert } from '@material-ui/lab';
 import Page from 'src/components/Page';
-import { useSnackBars } from '../../contexts/SnackbarContext';
+import { useSnackBars } from '../../contexts/Snackbar/SnackbarContext';
+import { Alert } from '@material-ui/lab';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -182,9 +182,11 @@ const CardView = ({ cardService }) => {
                       variant="outlined"
                       type="number"
                     />
-                    <Box mt={3}
+                    <Divider />
+                    <Box
                       display="flex"
                       justifyContent="flex-end"
+                      p={2}
                     >
                       <Button
                         color="primary"

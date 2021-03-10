@@ -7,6 +7,7 @@ import {
     Card,
     Checkbox,
     IconButton,
+    Link,
     Table,
     TableContainer,
     TableBody,
@@ -212,8 +213,8 @@ const EnhancedTable = ({ className, header, rows, ...rest}) => {
     }
 
     setSelected(newSelected);
+    event.stopPropagation();
   };
-
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -263,21 +264,21 @@ const EnhancedTable = ({ className, header, rows, ...rest}) => {
                             selected={isItemSelected}
                         >
                             <TableCell padding="checkbox" onClick={(event) => handleClick(event, row.id)}>
-                            <Checkbox
-                                checked={isItemSelected}
-                                inputProps={{ 'aria-labelledby': labelId }}
-                            />
+                              <Checkbox
+                                  checked={isItemSelected}
+                                  inputProps={{ 'aria-labelledby': labelId }}
+                              />
                             </TableCell>
                             {header.map((header, count) => (
                                 count===0 ? 
                                 <TableCell component="th" id={labelId} scope="row" padding="none" key={header.id} >
-                                  <RouterLink  to={`/app/cards/${row['id']}`} className="clt-row" key={row['id']}>{row[header.id]}</RouterLink>
+                                  {header.link ? <RouterLink  to={header.route+row.id} className="clt-row" key={row.id}>{row[header.id]}</RouterLink> : row[header.id]}
                                 </TableCell> :
                                 <TableCell
                                     align="left"
                                     key={header.id}
                                 >
-                                    {row[header.id]}
+                                    {header.link ? <RouterLink  to={header.route+row.id} className="clt-row" key={row.id}>{row[header.id]}</RouterLink> : row[header.id]}
                                 </TableCell>
                                 ))}
                             

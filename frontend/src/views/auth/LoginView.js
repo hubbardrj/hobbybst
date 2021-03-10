@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
-import { authLogin, googleAuthLogin, useAuthState, useAuthDispatch } from '../../contexts';
+import { authLogin, googleAuthLogin, useAuthState, useAuthDispatch } from '../../contexts/Auth';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import {

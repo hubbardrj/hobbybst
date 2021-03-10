@@ -12,8 +12,8 @@ import ProductListView from 'src/views/product/ProductListView';
 import RegisterView from 'src/views/auth/RegisterView';
 import SettingsView from 'src/views/settings/SettingsView';
 import LandingView from './views/landing/LandingView';
-import * as actions from './contexts/AuthActions';
-import { useAuthState, useAuthDispatch } from './contexts'
+import * as actions from './contexts/Auth/AuthActions';
+import { useAuthState, useAuthDispatch } from './contexts/Auth'
  
 const AppRoutes = (location) => {
     const dispatch = useAuthDispatch();

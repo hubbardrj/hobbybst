@@ -9,7 +9,7 @@ import {
   makeStyles, Button
 } from '@material-ui/core';
 import Logo from 'src/components/Logo';
-import { useAuthState, useAuthDispatch, logout } from '../../contexts'
+import { useAuthState, useAuthDispatch, logout } from '../../contexts/Auth'
 
 const useStyles = makeStyles(({
   root: {},
@@ -30,7 +30,7 @@ const TopBar = ({ className, isAuthenticated, ...rest }) => {
       {...rest}
     >
       <Toolbar className={classes.toolbar}>
-        <RouterLink to="/">
+        <RouterLink to="/app/dashboard">
           <Logo />
         </RouterLink>
         <Box flexGrow={1} />

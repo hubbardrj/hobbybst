@@ -23,6 +23,7 @@ import {
   Briefcase as BriefcaseIcon,
 } from 'react-feather';
 import NavItem from './NavItem';
+import { deepOrange, deepPurple } from '@material-ui/core/colors';
 
 const user = {
   avatar: '/static/images/avatars/avatar_6.png',
@@ -78,7 +79,7 @@ const items = [
   }
 ];
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   mobileDrawer: {
     width: 256
   },
@@ -90,7 +91,9 @@ const useStyles = makeStyles(() => ({
   avatar: {
     cursor: 'pointer',
     width: 64,
-    height: 64
+    height: 64,
+    color: theme.palette.getContrastText(deepPurple[500]),
+    backgroundColor: deepPurple[500],
   }
 }));
 
@@ -98,6 +101,7 @@ const NavBar = ({ onMobileClose, openMobile, currentUser }) => {
   const classes = useStyles();
   const location = useLocation();
   user.name = currentUser.first_name + ' '+ currentUser.last_name;
+  user.initials = currentUser.first_name.charAt(0)+currentUser.last_name.charAt(0);
   
   useEffect(() => {
     if (openMobile && onMobileClose) {
@@ -121,9 +125,8 @@ const NavBar = ({ onMobileClose, openMobile, currentUser }) => {
         <Avatar
           className={classes.avatar}
           component={RouterLink}
-          src={user.avatar}
           to="/app/account"
-        />
+        >{user.initials}</Avatar>
         <Typography
           className={classes.name}
           color="textPrimary"

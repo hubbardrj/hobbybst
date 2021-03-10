@@ -1,6 +1,6 @@
 import * as actionTypes from './AuthActionTypes';
-import * as settings from '../settings';
-import http from "../services/http-common";
+import * as settings from '../../settings';
+import http from "../../services/http-common";
 
 const SESSION_DURATION = settings.SESSION_DURATION;
 

@@ -7,6 +7,7 @@ import {
 import Page from 'src/components/Page';
 import EnhancedTable from 'src/components/EnhancedTable';
 import Toolbar from './Toolbar';
+import Spinner from 'src/components/Spinner';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -21,11 +22,12 @@ const CardListView = ({cardService}) => {
   const classes = useStyles();
   const [cards, setCards] = useState([]);
   const [filter, setFilter] = useState('');
+  const [isLoading, setLoading] = useState(true);
 
   const changeFilterStr = (e) => {
     setFilter(e.target.value);
   }
-
+  
   React.useEffect(() => {
     async function fetchData() {
       try {
@@ -35,12 +37,15 @@ const CardListView = ({cardService}) => {
       catch (error) {
         console.log('error man');
       }
+      finally {
+        setLoading(false);
+      }
     }
     fetchData();
   }, [cardService]);  
 
   const headCells = [
-    { id: 'player_name', numeric: false, disablePadding: true, label: 'Name' },
+    { id: 'player_name', numeric: false, disablePadding: true, label: 'Name', link:true, route:'/app/cards/' },
     { id: 'card_number', numeric: false, disablePadding: false, label: 'Card #' },
     { id: 'set_name', numeric: false, disablePadding: false, label: 'Set Name' },
     { id: 'set_year', numeric: true, disablePadding: false, label: 'Set Year' }
@@ -53,7 +58,9 @@ const CardListView = ({cardService}) => {
       <Container maxWidth={false}>
         <Toolbar updateFilter={changeFilterStr} />
         <Box mt={3}>
-          <EnhancedTable header={headCells} rows={cards.filter(e => e.player_name.toLowerCase().includes(filter))} />
+          { isLoading ? <Spinner /> : 
+          <EnhancedTable header={headCells} rows={cards.filter(e => e.player_name.toLowerCase().includes(filter))} /> 
+          }
         </Box>
       </Container>
     </Page>

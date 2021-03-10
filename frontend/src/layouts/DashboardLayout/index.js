@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core';
 import NavBar from './NavBar';
 import TopBar from './TopBar';
-import { useAuthState } from '../../contexts';
+import { useAuthState } from '../../contexts/Auth';
 
 const useStyles = makeStyles((theme) => ({
   root: {

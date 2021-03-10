@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Container,
+  Box,
   Grid,
   makeStyles
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import Profile from './Profile';
 import ProfileDetails from './ProfileDetails';
+import Password from './Password';
+import useAccountService from '../AccountService';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -19,6 +22,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Account = () => {
   const classes = useStyles();
+  const [accountService] = useState(useAccountService());
 
   return (
     <Page
@@ -44,7 +48,12 @@ const Account = () => {
             md={6}
             xs={12}
           >
-            <ProfileDetails />
+            <Box>
+              <ProfileDetails accountService={accountService} />
+            </Box>
+            <Box mt={2}>
+              <Password accountService={accountService} />
+            </Box>
           </Grid>
         </Grid>
       </Container>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Container,
@@ -7,6 +7,8 @@ import {
 import Page from 'src/components/Page';
 import Notifications from './Notifications';
 import Password from './Password';
+import useAccountService from '../AccountService';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -19,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
 
 const SettingsView = () => {
   const classes = useStyles();
-
+  const [accountService] = useState(useAccountService());
   return (
     <Page
       className={classes.root}
@@ -28,7 +30,7 @@ const SettingsView = () => {
       <Container maxWidth="lg">
         <Notifications />
         <Box mt={3}>
-          <Password />
+          <Password accountService={accountService}/>
         </Box>
       </Container>
     </Page>

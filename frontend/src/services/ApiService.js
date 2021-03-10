@@ -1,6 +1,6 @@
 import http from './http-common';
 import { useNavigate } from 'react-router-dom';
-import { logout, useAuthDispatch } from '../contexts';
+import { logout, useAuthDispatch } from '../contexts/Auth';
 
 const useApiService = () => {
     const navigate = useNavigate();
@@ -25,10 +25,9 @@ const useApiService = () => {
                 redirectTo(document, '/404')
                 break;
             default:
-                redirectTo(document, '/500')
                 break;
         }
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
     axiosInstance.interceptors.response.use(handleSuccess, handleError);
 
