@@ -15,8 +15,13 @@ const useCardService = () => {
     const createCard = async (data) => {
         return api.post("/cards/", data, config);
     }
-
-    return { getAll, get, createCard };
+    const getSports = async () => {
+        return api.get('/sports/');
+    }
+    const findPlayers = async (name) => {
+        return api.get('/players/?search='+name);
+    }
+    return { getAll, get, createCard, getSports, findPlayers };
 }
 
 export default useCardService;

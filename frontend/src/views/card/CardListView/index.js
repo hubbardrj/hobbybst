@@ -46,7 +46,9 @@ const CardListView = ({cardService}) => {
 
   const headCells = [
     { id: 'player_name', numeric: false, disablePadding: true, label: 'Name', link:true, route:'/app/cards/' },
-    { id: 'card_number', numeric: false, disablePadding: false, label: 'Card #' },
+    { id: 'sport', numeric: false, disablePadding: false, label: 'Sport' },
+    { id: 'card_company', numeric: false, disablePadding: false, label: 'Card Company' },
+    { id: 'card_number', numeric: true, disablePadding: false, label: 'Card #' },
     { id: 'set_name', numeric: false, disablePadding: false, label: 'Set Name' },
     { id: 'set_year', numeric: true, disablePadding: false, label: 'Set Year' }
   ];
@@ -59,7 +61,11 @@ const CardListView = ({cardService}) => {
         <Toolbar updateFilter={changeFilterStr} />
         <Box mt={3}>
           { isLoading ? <Spinner /> : 
-          <EnhancedTable header={headCells} rows={cards.filter(e => e.player_name.toLowerCase().includes(filter))} /> 
+          <EnhancedTable 
+            compact={false} 
+            header={headCells} 
+            selectedIds={[]}
+            data={cards.filter(e => e.player_name.toLowerCase().includes(filter))} /> 
           }
         </Box>
       </Container>

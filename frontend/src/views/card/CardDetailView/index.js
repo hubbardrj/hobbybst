@@ -10,8 +10,9 @@ import {
 } from '@material-ui/core';
 import Page from 'src/components/Page';
 import {
-  useParams
+  useParams, Link as RouterLink,
 } from 'react-router-dom';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -46,47 +47,48 @@ const CardDetailView = ({cardService}) => {
       title="My Cards"
     >
       <Container maxWidth={false}>
-        <Box 
+        <Box
           display="flex"
-          justifyContent="flex-end"
-          mb={3}
         >
           <Button
-            color="secondary"
-            variant="contained"
+            color="default"
+            component={RouterLink}
+            to="/app/cards"
           >
-            Go Back
+            <ArrowBackIcon />Collection
           </Button>
         </Box>
-        <Paper elevation={3}  >
-          <Grid 
-            container 
-            spacing={0} 
-            >
-            <Grid item xs={6} sm={3}>
-              <img src='/static/images/avatars/avatar_1.png' alt='Card Front' height='100%' width='100%'/>
+        <Box mt={3} >
+          <Paper elevation={3} >
+            <Grid 
+              container 
+              spacing={0} 
+              >
+              <Grid item xs={6} sm={3}>
+                <img src='/static/images/avatars/avatar_1.png' alt='Card Front' height='100%' width='100%'/>
+              </Grid>
+              <Grid item xs={6} sm={6}>
+                <Box p={3}>
+                <Typography variant="h4">{card.card_company} | {card.set_year} | {card.set_name} </Typography>
+                <Typography variant="h1">#{card.card_number} {card.player_name}</Typography>
+                </Box>
+              </Grid>
+              <Grid item xs={6} sm={3}>
+                <Box 
+                display="flex"
+                justifyContent="flex-end"
+                p={5}>
+                  <Button
+                    color="secondary"
+                    variant="contained"
+                  >
+                    Edit
+                  </Button>
+                </Box>
+              </Grid>
             </Grid>
-            <Grid item xs={6} sm={6}>
-              <Box p={3}>
-              <Typography variant="h4">{card.set_year} | {card.set_name} | {card.card_number}</Typography>
-              <Typography variant="h1">{card.player_name}</Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <Box 
-              display="flex"
-              justifyContent="flex-end"
-              p={5}>
-                <Button
-                  color="secondary"
-                  variant="contained"
-                >
-                  Edit
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
-        </Paper>
+          </Paper>
+        </Box>
       </Container>
     </Page>
   );

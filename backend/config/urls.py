@@ -19,6 +19,7 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('apps.cards.urls')),
+    path('api/', include('apps.sportdata.urls')),
     path('api/auth/', include('apps.users.urls')),
     path('accounts/', include('allauth.urls'), name='socialaccount_signup'),
     #path('api/auth/', include('dj_rest_auth.urls'))

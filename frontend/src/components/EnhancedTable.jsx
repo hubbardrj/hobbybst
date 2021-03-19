@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import PerfectScrollbar from 'react-perfect-scrollbar';
@@ -7,7 +7,6 @@ import {
     Card,
     Checkbox,
     IconButton,
-    Link,
     Table,
     TableContainer,
     TableBody,
@@ -16,15 +15,18 @@ import {
     TablePagination,
     TableRow,
     TableSortLabel,
+    TextField,
     Toolbar,
     Tooltip,
     Typography,
     makeStyles
   } from '@material-ui/core';
 import { Link as RouterLink } from 'react-router-dom';
-import DeleteIcon from '@material-ui/icons/Delete';
+import ClearIcon from '@material-ui/icons/Clear';
 import FilterListIcon from '@material-ui/icons/FilterList';
-
+import AddBoxIcon from '@material-ui/icons/AddBox';
+import IndeterminateCheckBoxIcon from '@material-ui/icons/IndeterminateCheckBox';
+import EditableCell from './EditableCell';
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -53,27 +55,39 @@ function stableSort(array, comparator) {
 }
 
 function EnhancedTableHead(props) {
-  const { classes, headCells, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
+  const { classes, filters, headCells, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort, onRequestFilter, useCheckbox } = props;
+  const [showFilters, setShowFilters] = useState(false);
+
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
+  };
+  const createFilterHandler = (property) => (event) => {
+    onRequestFilter(event, property);
+  };
+  const toggleFilters = () => {
+    setShowFilters(!showFilters);
   };
 
   return (
     <TableHead>
       <TableRow>
         <TableCell padding="checkbox">
-          <Checkbox
+          {useCheckbox ?
+            <Checkbox
             indeterminate={numSelected > 0 && numSelected < rowCount}
             color="primary"
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
-            inputProps={{ 'aria-label': 'select all desserts' }}
+            inputProps={{ 'aria-label': 'select all' }}
           />
+          : null
+          }
         </TableCell>
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
             sortDirection={orderBy === headCell.id ? order : false}
+            className={headCell.narrow ? classes.narrowCell : null}
           >
             <TableSortLabel
               active={orderBy === headCell.id}
@@ -87,7 +101,43 @@ function EnhancedTableHead(props) {
             </TableSortLabel>
           </TableCell>
         ))}
+        {filters ? 
+          <TableCell
+          className={classes.filterIcon}
+        >
+          <Tooltip title="Filter list">
+            <IconButton 
+              aria-label="filter list"
+              onClick={toggleFilters}
+            >
+              <FilterListIcon />
+            </IconButton>
+          </Tooltip>
+        </TableCell>
+        : null}
       </TableRow>
+      {showFilters ?
+        <TableRow>
+          <TableCell padding="checkbox"/>
+          {headCells.map((headCell) => (
+            <TableCell
+              key={headCell.id}
+              className={classes.filters}
+            >
+              {headCell.input ? null :
+              <TextField
+                id="filled-secondary"
+                label=""
+                variant="outlined"
+                size="small"
+                onChange={createFilterHandler(headCell.id)}
+              />
+              }
+            </TableCell>
+          ))}
+      </TableRow>
+      : null
+      }
     </TableHead>
   );
 }
@@ -101,6 +151,7 @@ EnhancedTableHead.propTypes = {
   order: PropTypes.oneOf(['asc', 'desc']).isRequired,
   orderBy: PropTypes.string.isRequired,
   rowCount: PropTypes.number.isRequired,
+  filters: PropTypes.bool
 };
 
 const useToolbarStyles = makeStyles((theme) => ({
@@ -125,13 +176,14 @@ const useToolbarStyles = makeStyles((theme) => ({
 
 const EnhancedTableToolbar = (props) => {
   const classes = useToolbarStyles();
-  const { numSelected } = props;
+  const { numSelected, title, compact, onClear} = props;
 
   return (
     <Toolbar
       className={clsx(classes.root, {
         [classes.highlight]: numSelected > 0,
       })}
+      variant={compact ? 'dense' : 'regular'}
     >
       {numSelected > 0 ? (
         <Typography className={classes.title} color="inherit" variant="subtitle1" component="div">
@@ -139,23 +191,17 @@ const EnhancedTableToolbar = (props) => {
         </Typography>
       ) : (
         <Typography className={classes.title} variant="h6" id="tableTitle" component="div">
-          Nutrition
+          {title}
         </Typography>
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
-          <IconButton aria-label="delete">
-            <DeleteIcon />
+        <Tooltip title="Clear Selections">
+          <IconButton aria-label="cancel" onClick={onClear}>
+            <ClearIcon />
           </IconButton>
         </Tooltip>
-      ) : (
-        <Tooltip title="Filter list">
-          <IconButton aria-label="filter list">
-            <FilterListIcon />
-          </IconButton>
-        </Tooltip>
-      )}
+      ) : null}
     </Toolbar>
   );
 };
@@ -168,17 +214,40 @@ const useStyles = makeStyles((theme) => ({
     root: {},
     avatar: {
       marginRight: theme.spacing(2)
+    },
+    narrowCell: {
+      'width': '10%',
+    },
+    filterIcon: {
+      'width': '50px',
+    },
+    filters: {
+      padding: '6px',
     }
   }));
 
-const EnhancedTable = ({ className, header, rows, ...rest}) => {
+const EnhancedTable = (
+  { className, 
+    header, 
+    data, 
+    compact, 
+    filters, 
+    toolbar, 
+    useCheckbox = true, 
+    selectedIds = [], 
+    title, 
+    onSelection = () => {}, 
+    handleFieldUpdate, 
+    ...rest}) => {
   const classes = useStyles();
   const [order, setOrder] = React.useState('asc');
-  const [orderBy, setOrderBy] = React.useState('calories');
-  const [selected, setSelected] = React.useState([]);
+  const [orderBy, setOrderBy] = React.useState('Name');
+  const [filterBy, setFilterBy] = React.useState({});
+  const [selected, setSelected] = React.useState(selectedIds);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [useToolbar] = React.useState(false);
+  const [useToolbar] = React.useState(toolbar);
+  const [rows, setRows] = React.useState(data);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -186,21 +255,33 @@ const EnhancedTable = ({ className, header, rows, ...rest}) => {
     setOrderBy(property);
   };
 
+  const handleRequestFilter = (event, property) => {
+    const value = event.target.value.toLowerCase();
+    setFilterBy(prevState => ({
+      ...prevState,
+      [property]: value
+    }));    
+  };
+
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       const newSelecteds = rows.map((n) => n.id);
       setSelected(newSelecteds);
+      onSelection(newSelecteds);
       return;
     }
     setSelected([]);
+    onSelection([], null, false);
   };
 
-  const handleClick = (event, name) => {
+  const handleClick = (event, row) => {
+    const name = row.id;
     const selectedIndex = selected.indexOf(name);
+    let rowAdded = false;
     let newSelected = [];
-    console.log('clicky');
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, name);
+      rowAdded = true;
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -211,8 +292,8 @@ const EnhancedTable = ({ className, header, rows, ...rest}) => {
         selected.slice(selectedIndex + 1),
       );
     }
-
     setSelected(newSelected);
+    onSelection(newSelected, row, rowAdded);
     event.stopPropagation();
   };
   const handleChangePage = (event, newPage) => {
@@ -224,19 +305,36 @@ const EnhancedTable = ({ className, header, rows, ...rest}) => {
     setPage(0);
   };
 
-  const isSelected = (name) => selected.indexOf(name) !== -1;
+  const isSelected = (name) => {
+    return selected.indexOf(name) !== -1;
+  }
 
-  //const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+  React.useEffect(() => {
+    setRows(data.filter(item => 
+      {
+        for(var key in filterBy) {
+          if (!item[key].toString().toLowerCase().includes(filterBy[key]))
+            return false;
+        }
+        return true;
+      }));
+  }, [setRows, filterBy, data]); 
+
+  React.useEffect(() => {
+    setSelected(selectedIds);
+  },[selectedIds]);
 
   return (
     <Card
       className={clsx(classes.root, className)}
       {...rest}
-    >
+    >{console.log('tabling '+title)}
         <PerfectScrollbar>
-            {useToolbar ? <EnhancedTableToolbar numSelected={selected.length} /> : null }
+            {useToolbar ? <EnhancedTableToolbar numSelected={selected.length} title={title} compact={compact} onClear={handleSelectAllClick} /> : null }
             <TableContainer>
-                <Table>
+                <Table
+                  size={compact ? 'small' : 'medium'}
+                >
                 <EnhancedTableHead
                     classes={classes}
                     headCells={header}
@@ -245,7 +343,9 @@ const EnhancedTable = ({ className, header, rows, ...rest}) => {
                     orderBy={orderBy}
                     onSelectAllClick={handleSelectAllClick}
                     onRequestSort={handleRequestSort}
+                    onRequestFilter={handleRequestFilter}
                     rowCount={rows.length}
+                    filters={filters}
                 />
                 <TableBody>
                     {stableSort(rows, getComparator(order, orderBy))
@@ -263,13 +363,19 @@ const EnhancedTable = ({ className, header, rows, ...rest}) => {
                             key={row.id}
                             selected={isItemSelected}
                         >
-                            <TableCell padding="checkbox" onClick={(event) => handleClick(event, row.id)}>
-                              <Checkbox
+                            <TableCell padding="checkbox" onClick={(event) => handleClick(event, row)}>
+                              {useCheckbox ? 
+                                <Checkbox
                                   checked={isItemSelected}
                                   inputProps={{ 'aria-labelledby': labelId }}
-                              />
+                                /> :
+                                <IconButton
+                                >
+                                  {isItemSelected ? <IndeterminateCheckBoxIcon color="error"/> : <AddBoxIcon color="primary" /> }
+                                </IconButton>
+                              }
                             </TableCell>
-                            {header.map((header, count) => (
+                            {header.map((header, count, list) => (
                                 count===0 ? 
                                 <TableCell component="th" id={labelId} scope="row" padding="none" key={header.id} >
                                   {header.link ? <RouterLink  to={header.route+row.id} className="clt-row" key={row.id}>{row[header.id]}</RouterLink> : row[header.id]}
@@ -277,11 +383,20 @@ const EnhancedTable = ({ className, header, rows, ...rest}) => {
                                 <TableCell
                                     align="left"
                                     key={header.id}
+                                    colSpan={count===list.length-1 ? 2 : 1}
                                 >
-                                    {header.link ? <RouterLink  to={header.route+row.id} className="clt-row" key={row.id}>{row[header.id]}</RouterLink> : row[header.id]}
+                                  {header.link ? <RouterLink  to={header.route+row.id} className="clt-row" key={row.id}>{row[header.id]}</RouterLink> : 
+                                    header.input ? 
+                                    <EditableCell
+                                      value={row[header.id]}
+                                      updateMyData={handleFieldUpdate}
+                                      row={row}
+                                      column={header.id}
+                                    />
+                                     : 
+                                    row[header.id]}
                                 </TableCell>
                                 ))}
-                            
                         </TableRow>
                         );
                     })}
@@ -304,6 +419,6 @@ const EnhancedTable = ({ className, header, rows, ...rest}) => {
 EnhancedTable.propTypes = {
     className: PropTypes.string,
     header: PropTypes.array.isRequired,
-    rows: PropTypes.array.isRequired
+    data: PropTypes.array.isRequired
 }
-export default EnhancedTable;
+export default React.memo(EnhancedTable);

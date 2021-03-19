@@ -8,7 +8,6 @@ import {
 import Page from 'src/components/Page';
 import Profile from './Profile';
 import ProfileDetails from './ProfileDetails';
-import Password from './Password';
 import useAccountService from '../AccountService';
 
 const useStyles = makeStyles((theme) => ({
@@ -50,9 +49,6 @@ const Account = () => {
           >
             <Box>
               <ProfileDetails accountService={accountService} />
-            </Box>
-            <Box mt={2}>
-              <Password accountService={accountService} />
             </Box>
           </Grid>
         </Grid>

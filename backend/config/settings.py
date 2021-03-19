@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
 
     'apps.cards',
+    'apps.sportdata',
     'apps.users'
 ]
 SITE_ID = 3
