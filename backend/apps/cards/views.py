@@ -1,25 +1,43 @@
 # cards/views.py
-from rest_framework import generics
+from rest_framework import generics, filters
 
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Card
-from .serializers import CardSerializer
+from .models import Brand, Card, Checklist
+from .serializers import BrandSerializer, CardSerializer, ChecklistSerializer
+from rest_framework.response import Response
+from rest_framework import status
 
 
 class ListCard(generics.ListCreateAPIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = CardSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
     
     def get_queryset(self):
         user = self.request.user
         return Card.objects.filter(user=user)
 
+    def get_serializer(self, *args, **kwargs):
+        if isinstance(kwargs.get("data", {}), list):
+            kwargs["many"] = True
+
+        return super(ListCard, self).get_serializer(*args, **kwargs)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        data = serializer.data[:]
+        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def post(self, request, *args, **kwargs):
+        return super(ListCard, self).post(request, *args, **kwargs)
 
 class DetailCard(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [SessionAuthentication]
@@ -29,3 +47,33 @@ class DetailCard(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         user = self.request.user
         return Card.objects.filter(user=user)
+
+    def perform_update(self, serializer):
+        serializer.save(user=self.request.user)
+
+class ListChecklist(generics.ListAPIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    serializer_class = ChecklistSerializer
+    def get_queryset(self):
+        queryset = Checklist.objects.all()
+        brand_id = self.request.query_params.get('brand_id', None)
+        year = self.request.query_params.get('year', None)
+        if brand_id is not None and year is not None:
+            queryset = queryset.filter(brand__id=brand_id, year=year)
+            return queryset
+        return None
+
+class BrandList(generics.ListAPIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = BrandSerializer
+    filter_backends = [filters.SearchFilter]
+
+    def get_queryset(self):
+        queryset = Brand.objects.all()
+        sport = self.request.query_params.get('sport', None)
+        if sport is not None:
+            queryset = queryset.filter(sport__abbr__iexact=sport)
+        return queryset

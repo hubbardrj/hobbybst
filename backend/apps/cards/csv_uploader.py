@@ -30,9 +30,10 @@ class CsvUploader:
         return {
             'Checklist': self.checklist,
             'set_name': row['Set'],
+            'card_number':row['Number'],
             'player_name':row['Player'],
             'team_name': row['Team'],
-            'seq': None if row['Seq'] == '' else row['Seq'],
+            'seq': row['Seq'],
             'other': row['Other']
         }
     def read_chunk(self):

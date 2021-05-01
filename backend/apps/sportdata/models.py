@@ -20,6 +20,7 @@ class Player(models.Model):
     first_name = models.CharField(max_length=200, null=True, blank=True)
     last_name = models.CharField(max_length=200, null=True, blank=True)
     player_code = models.IntegerField(null=True, blank=True)
+    sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.full_name

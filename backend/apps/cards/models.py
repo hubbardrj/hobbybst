@@ -6,12 +6,13 @@ from ..sportdata.models import Sport, Player, Team
 class Brand(models.Model):
     company = models.CharField(max_length=100, null=True)
     name = models.CharField(max_length=200)
+    sport = models.ForeignKey(Sport, on_delete=models.CASCADE)
 
     def __str__(self):
         return ''.join([self.company, ' ', self.name])
 
 class Card(models.Model):
-    brand = models.ForeignKey(Brand, null=True, on_delete=models.SET_NULL)
+    brand = models.ForeignKey(Brand, null=True, on_delete=models.SET_NULL, related_name='brand')
     player = models.ForeignKey(Player, null=True, on_delete=models.SET_NULL)
     card_number = models.CharField(max_length=20, null=False)
     set_name = models.CharField(max_length=200)
@@ -20,25 +21,26 @@ class Card(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     front_of_card = models.URLField(null=True, blank=True)
     back_of_card = models.URLField(null=True, blank=True )
+    seq = models.CharField(max_length=20, default='', blank=True)
+    notes = models.CharField(max_length=50, default='', blank=True)
 
     def __str__(self):
         return self.player.full_name
 
 class Checklist(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
-    sport = models.ForeignKey(Sport, null=True, on_delete=models.SET_NULL)
     year = models.IntegerField()
 
     def __str__(self):
         return self.brand.name
 
 class ChecklistCard(models.Model):
-    Checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE)
+    Checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE, related_name='checklist')
     set_name = models.CharField(max_length=200)
     player_name = models.CharField(max_length=200)
     card_number = models.CharField(max_length=20, null=False, default='')
     team_name = models.CharField(max_length=200, null=True)
-    seq = models.IntegerField(null=True, default=None)
+    seq = models.CharField(max_length=20, default=None)
     other = models.CharField(max_length=50, null=True)
 
     def __str__(self):

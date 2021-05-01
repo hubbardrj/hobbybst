@@ -1,12 +1,14 @@
 from dj_rest_auth.views import (LoginView, LogoutView, PasswordChangeView, UserDetailsView)
+from rest_framework import serializers
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from dj_rest_auth.registration.views import SocialLoginView
-from dj_rest_auth.serializers import TokenSerializer, UserDetailsSerializer
+from dj_rest_auth.serializers import  UserDetailsSerializer
 from rest_framework.response import Response
+from .serializers import UserUpdateSerializer
 
 # Create your views here.
 def get_csrf(request):
@@ -34,7 +36,10 @@ class APILoginView(LoginView):
 class APIUserView(UserDetailsView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
+    serializer_class = UserUpdateSerializer
+        
     pass
+
 
 class APIPasswordUpdateView(PasswordChangeView):
     authentication_classes = [SessionAuthentication]

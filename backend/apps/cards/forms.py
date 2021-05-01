@@ -9,7 +9,7 @@ class CsvImportForm(forms.ModelForm):
 
     class Meta:
         model = Checklist
-        fields = ('sport','brand','year')
+        fields = ('brand','year')
 
     brand = forms.ModelChoiceField(
         queryset=Brand.objects.all(),

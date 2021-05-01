@@ -13,11 +13,13 @@ class SportSerializer(serializers.ModelSerializer):
         read_only_fields = ('id','name','abbr')
 
 class PlayerSerializer(serializers.ModelSerializer):
+    sport_id = serializers.IntegerField(write_only=True)
     class Meta:
         model = Player
         fields = (
             'id',
             'full_name',
+            'sport_id'
         )
         read_only_fields = ('id',)
 
