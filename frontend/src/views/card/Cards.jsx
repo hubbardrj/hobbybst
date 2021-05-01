@@ -24,6 +24,10 @@ const Cards = () => {
                 path="/:id"
                 element={<CardDetailView cardService={cardService} />}
             />
+            <Route
+                path="/:id/edit"
+                element={<CardAddView cardService={cardService} editMode={true} />}
+            />
         </Routes>
     )
 }

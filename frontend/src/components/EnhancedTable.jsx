@@ -234,6 +234,7 @@ const EnhancedTable = (
     filters, 
     toolbar, 
     useCheckbox = true, 
+    raised = false,
     selectedIds = [], 
     title, 
     onSelection = () => {}, 
@@ -326,6 +327,7 @@ const EnhancedTable = (
 
   return (
     <Card
+      raised={raised}
       className={clsx(classes.root, className)}
       {...rest}
     >{console.log('tabling '+title)}

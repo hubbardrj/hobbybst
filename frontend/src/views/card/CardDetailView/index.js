@@ -3,16 +3,17 @@ import {
   Box,
   Button,
   Container,
-  Grid,
   makeStyles,
-  Paper,
-  Typography
+  Paper
 } from '@material-ui/core';
 import Page from 'src/components/Page';
+
 import {
   useParams, Link as RouterLink,
 } from 'react-router-dom';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import CardDetails from './CardDetails';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,13 +21,23 @@ const useStyles = makeStyles((theme) => ({
     minHeight: '100%',
     paddingBottom: theme.spacing(3),
     paddingTop: theme.spacing(3)
+  },
+  statBox: {
+    marginTop:'auto',
+    borderTop:'2px #00838f solid'
+  },
+  statBoxItem: {
+    borderLeft: '2px #00838f solid'
+  },
+  statBoxItemEnd: {
+    borderRight: '2px #00838f solid'
   }
 }));
 
 const CardDetailView = ({cardService}) => {
   const { id } = useParams();
   const classes = useStyles();
-  const [card, setCard] = useState([]);
+  const [card, setCard] = useState({});
 
   React.useEffect(() => {
     async function fetchData() {
@@ -35,7 +46,7 @@ const CardDetailView = ({cardService}) => {
         setCard(card.data);
       }
       catch (error) {
-        console.log('error man');
+        console.log('Error Loading Card');
       }
     }
     fetchData();
@@ -58,35 +69,9 @@ const CardDetailView = ({cardService}) => {
             <ArrowBackIcon />Collection
           </Button>
         </Box>
-        <Box mt={3} >
-          <Paper elevation={3} >
-            <Grid 
-              container 
-              spacing={0} 
-              >
-              <Grid item xs={6} sm={3}>
-                <img src='/static/images/avatars/avatar_1.png' alt='Card Front' height='100%' width='100%'/>
-              </Grid>
-              <Grid item xs={6} sm={6}>
-                <Box p={3}>
-                <Typography variant="h4">{card.card_company} | {card.set_year} | {card.set_name} </Typography>
-                <Typography variant="h1">#{card.card_number} {card.player_name}</Typography>
-                </Box>
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <Box 
-                display="flex"
-                justifyContent="flex-end"
-                p={5}>
-                  <Button
-                    color="secondary"
-                    variant="contained"
-                  >
-                    Edit
-                  </Button>
-                </Box>
-              </Grid>
-            </Grid>
+        <Box mt={3}>
+          <Paper elevation={3}>
+            <CardDetails card={card} />
           </Paper>
         </Box>
       </Container>

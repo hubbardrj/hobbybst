@@ -18,10 +18,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const headCells = [
-  { id: 'set', numeric: false, label: 'Set' },
+  { id: 'set_name', numeric: false, label: 'Set' },
   { id: 'card_number', numeric: true, label: '#' },
   { id: 'player_name', numeric: false, label: 'Player'},
-  { id: 'team', numeric: false, label: 'Team' },
+  { id: 'team_name', numeric: false, label: 'Team' },
   { id: 'seq', numeric: false, narrow:true, label: 'Seq'},
   { id: 'other', numeric: false, label: 'Other'},
 ];
@@ -47,7 +47,7 @@ const Toolbar = ({ className, updateFilter, selections, onSelection, cards, ...r
       className={clsx(classes.root, className)}
       {...rest}
     >
-      <Box >
+      <Box>
         <TextField
           fullWidth
           size="small"
@@ -79,7 +79,8 @@ const Toolbar = ({ className, updateFilter, selections, onSelection, cards, ...r
             useCheckbox={false}
             onSelection={onSelection}
             selectedIds={selections}
-            data={cards.filter(e => e.player_name.toLowerCase().includes(filter))} /> 
+            raised={true}
+            data={cards.filter(e => e.player_name.toLowerCase().includes(filter.toLowerCase()))} /> 
         </Box>
       </Collapse>
       </Box>

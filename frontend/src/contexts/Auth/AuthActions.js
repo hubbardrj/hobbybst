@@ -97,3 +97,6 @@ export const authCheckState = (dispatch) => {
         dispatch({ type: actionTypes.AUTH_SUCCESS, payload:{token:token, user:currentUser}});
     }
 }
+export const updateProfile = (dispatch, user) => {
+    dispatch({ type: actionTypes.PROFILE_UPDATE, payload:{user: user}});
+}

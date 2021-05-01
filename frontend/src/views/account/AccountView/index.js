@@ -9,6 +9,8 @@ import Page from 'src/components/Page';
 import Profile from './Profile';
 import ProfileDetails from './ProfileDetails';
 import useAccountService from '../AccountService';
+import * as actions from '../../../contexts/Auth/AuthActions';
+import { useAuthDispatch } from '../../../contexts/Auth'
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -22,6 +24,41 @@ const useStyles = makeStyles((theme) => ({
 const Account = () => {
   const classes = useStyles();
   const [accountService] = useState(useAccountService());
+  const [profile, setProfile] = useState();
+  const dispatch = useAuthDispatch();
+
+  React.useEffect(() => {
+    async function fetchData() {
+      try {
+        const profile = await accountService.getProfile();
+        setProfile(profile.data);
+      }
+      catch (error) {
+        console.log('An error occured loading your profile, please refresh');
+      }
+    }
+    fetchData();
+  }, [accountService]);  
+
+  const  updateProfile = async (data) => {
+    try {
+      console.log(data)
+      const response = await accountService.updateProfile(
+        {
+          username: profile.username,
+          email: data.email,
+          first_name: data.firstName,
+          last_name: data.lastName
+        }
+      )
+      setProfile(response.data);
+      actions.updateProfile(dispatch, response.data);
+    }
+    catch (error) {
+
+    }
+  };
+
 
   return (
     <Page
@@ -39,7 +76,7 @@ const Account = () => {
             md={6}
             xs={12}
           >
-            <Profile />
+            {profile ? <Profile profile={profile} /> : null}
           </Grid>
           <Grid
             item
@@ -48,7 +85,7 @@ const Account = () => {
             xs={12}
           >
             <Box>
-              <ProfileDetails accountService={accountService} />
+              {profile ? <ProfileDetails profile={profile} updateMethod={updateProfile} /> : null}
             </Box>
           </Grid>
         </Grid>

@@ -15,13 +15,25 @@ const useCardService = () => {
     const createCard = async (data) => {
         return api.post("/cards/", data, config);
     }
+    const updateCard = async (id, data) => {
+        return api.put("/cards/"+id+"/", data, config);
+    }
+    const findPlayers = async (sport) => {
+        return api.get('/players/?sport='+sport);
+    }
+    const findBrands = async (sport) => {
+        return api.get('/brands/?sport='+sport);
+    }
+    const findTeams = async (sport) => {
+        return api.get('/teams/?sport='+sport);
+    }
     const getSports = async () => {
         return api.get('/sports/');
     }
-    const findPlayers = async (name) => {
-        return api.get('/players/?search='+name);
+    const getChecklist = async (brandId, year) => {
+        return api.get('/checklists?brand_id='+brandId+'&year='+year);
     }
-    return { getAll, get, createCard, getSports, findPlayers };
+    return { getAll, get, createCard, getSports, getChecklist, findPlayers, findBrands, findTeams, updateCard };
 }
 
 export default useCardService;

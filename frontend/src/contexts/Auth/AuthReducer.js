@@ -54,7 +54,11 @@ export const AuthReducer = (initialState, action) => {
         isLoggedin: false,
         errorMessage: action.error
       };
- 
+    case actionTypes.PROFILE_UPDATE:
+      return {
+        ...initialState,
+        user: action.payload.user,
+      };
     default:
       throw new Error(`Unhandled action type: ${action.type}`);
   }

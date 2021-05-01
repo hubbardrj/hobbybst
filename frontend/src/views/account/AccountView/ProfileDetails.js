@@ -13,34 +13,17 @@ import {
   makeStyles
 } from '@material-ui/core';
 
-const states = [
-  {
-    value: 'alabama',
-    label: 'Alabama'
-  },
-  {
-    value: 'new-york',
-    label: 'New York'
-  },
-  {
-    value: 'san-francisco',
-    label: 'San Francisco'
-  }
-];
-
 const useStyles = makeStyles(() => ({
   root: {}
 }));
 
-const ProfileDetails = ({ className, ...rest }) => {
+const ProfileDetails = ({ className, profile, updateMethod, ...rest }) => {
   const classes = useStyles();
   const [values, setValues] = useState({
-    firstName: 'Katarina',
-    lastName: 'Smith',
+    firstName: '1',
+    lastName: '1',
     email: 'demo@devias.io',
-    phone: '',
-    state: 'Alabama',
-    country: 'USA'
+    phone: '1'
   });
 
   const handleChange = (event) => {
@@ -50,6 +33,19 @@ const ProfileDetails = ({ className, ...rest }) => {
     });
   };
 
+  React.useEffect(() => {
+    if (profile)
+    {
+      setValues(prevState => (
+        {
+            ...prevState,
+            firstName: profile.first_name,
+            lastName: profile.last_name,
+            email: profile.email,
+            phone: '1'
+        }));
+    }
+  }, [profile]);
   return (
     <form
       autoComplete="off"
@@ -129,47 +125,6 @@ const ProfileDetails = ({ className, ...rest }) => {
                 variant="outlined"
               />
             </Grid>
-            <Grid
-              item
-              md={6}
-              xs={12}
-            >
-              <TextField
-                fullWidth
-                label="Country"
-                name="country"
-                onChange={handleChange}
-                required
-                value={values.country}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid
-              item
-              md={6}
-              xs={12}
-            >
-              <TextField
-                fullWidth
-                label="Select State"
-                name="state"
-                onChange={handleChange}
-                required
-                select
-                SelectProps={{ native: true }}
-                value={values.state}
-                variant="outlined"
-              >
-                {states.map((option) => (
-                  <option
-                    key={option.value}
-                    value={option.value}
-                  >
-                    {option.label}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
           </Grid>
         </CardContent>
         <Divider />
@@ -181,6 +136,7 @@ const ProfileDetails = ({ className, ...rest }) => {
           <Button
             color="primary"
             variant="contained"
+            onClick={(e)=>{updateMethod(values)}}
           >
             Save details
           </Button>

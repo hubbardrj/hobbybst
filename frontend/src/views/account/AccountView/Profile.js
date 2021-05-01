@@ -31,7 +31,7 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const Profile = ({ className, ...rest }) => {
+const Profile = ({ className, profile, ...rest }) => {
   const classes = useStyles();
 
   return (
@@ -54,7 +54,7 @@ const Profile = ({ className, ...rest }) => {
             gutterBottom
             variant="h3"
           >
-            {user.name}
+            {profile.first_name + ' ' + profile.last_name}
           </Typography>
           <Typography
             color="textSecondary"

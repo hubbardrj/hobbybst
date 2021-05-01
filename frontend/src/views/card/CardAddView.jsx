@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import {
@@ -13,6 +13,7 @@ import {
   Divider,
   Grid,
   TextField,
+  Typography,
   makeStyles,
   Checkbox
 } from '@material-ui/core';
@@ -21,8 +22,10 @@ import Page from 'src/components/Page';
 import { useSnackBars } from '../../contexts/Snackbar/SnackbarContext';
 import { Alert, Autocomplete } from '@material-ui/lab';
 import ImageUpload from 'src/components/ImageUpload';
+import AsyncAutocomplete from 'src/components/AsyncAutocomplete';
+import ContainedTextField from 'src/components/ContainedTextField';
 import clsx from 'clsx';
-import ChecklistLoad from './ChecklistTableInput';
+import ChecklistTableInput from './ChecklistTableInput';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,6 +34,9 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(3),
     paddingTop: theme.spacing(3),
   },
+  card: {
+    overflow: 'visible'
+  },
   addButton: {
     marginLeft: theme.spacing(1)
   },
@@ -38,49 +44,71 @@ const useStyles = makeStyles((theme) => ({
     display:"none"
   }
 }));
-const headCells = [
-  { id: 'set', numeric: false, label: 'Set' },
-  { id: 'card_number', numeric: true, narrow:true, label: 'Card #' },
-  { id: 'player_name', numeric: false, label: 'Player'},
-  { id: 'team', numeric: false, label: 'Team' },
-  { id: 'seq', numeric: false, narrow:true, label: 'Seq', input: true },
-  { id: 'other', numeric: false, label: 'Other', input: true },
-];
-const createCards = () => {
-  var c = [];
-  for(var i=0; i<8000; i++) {
-    c.push({ id:i, set: 'Base', card_number:i, player_name: 'Test '+i, team: 'Chicago Bulls', seq:'/50', other:'' });
-  }
-  return c;
-  };
 
-const CardView = ({ cardService }) => {
+const CardView = ({ 
+  cardService,
+  editMode = false 
+  }) => {
   const classes = useStyles();
   const navigate = useNavigate();
   
-  const [sports, setSports] = useState([]);
   const [years, setYears] = useState([]);
   const [cardFront, setCardFront] = useState('');
   const [cardBack, setCardBack] = useState('');
   const { addAlert } = useSnackBars();
   const cardNumberRef = useRef();
-  const cards = createCards();
+  const { id } = useParams();
+
+  const [initialFormValues, setInitialFormValues] = useState({
+    player: '',
+    brand: '',
+    cardNumber: '',
+    setName: '',
+    setYear:null,
+    addAnother: false,
+    addMultiple: false,
+    team:'',
+    sport:{abbr:""},
+    seq:'',
+    notes:'',
+    cards:[],
+  });
+
 
   React.useEffect(() => {
     async function fetchData() {
       try {
-        const sports = await cardService.getSports();
-        setSports(sports.data);
+        if (editMode) {
+          const response = await cardService.get(id);
+          const card = response.data;
+
+          setInitialFormValues(prevState => (
+            {
+              ...prevState,
+              brand: {id: card.brand.id,
+                name: card.brand.name},
+              setName: card.set_name,
+              setYear: card.set_year,
+              cardNumber: card.card_number,
+              player: card.player,
+              team: card.team,
+              sport:{
+                id: card.brand.sport_id,
+                abbr:card.team.sport},
+              seq:card.seq,
+              notes:card.notes
+            })
+          );
+        }
       }
       catch (error) {
-        console.log('error man');
+        addAlert(<Alert severity="error">An error occured while loading this page</Alert>);
+        console.log(error);
       }
     }
     fetchData();
-  }, [cardService]);  
-  React.useEffect(() => {
-    console.log(cardFront);
-  }, [cardFront]); 
+  }, [cardService, addAlert, editMode, id]);  
+
   React.useEffect(() => {
     var startYear = 1900;
     var yearSet = [];
@@ -89,43 +117,99 @@ const CardView = ({ cardService }) => {
       yearSet.push(i);
     }
     setYears(yearSet);
-  }, [setYears])
-  
+  }, [setYears]);
+
   const formSubmit = useCallback(
     async (form) => {
       try {
-        console.log('submit');
-        await cardService.createCard(
-          {
-            brand: form.brand,
-            player: {full_name: form.playerName},
-            card_number: form.cardNumber,
-            set_name: form.setName,
-            set_year: form.setYear,
-            team: {
-              name: form.team,
-              sport_id: form.sport.id
-            },
-            front_of_card: cardFront,
-            back_of_card: cardBack
+        if (form.addMultiple) {
+          const newCards = form.cards.map(card => {
+            return {
+              brand_id: form.brand.id,
+              player: {
+                full_name: card.player_name,
+                sport_id: form.sport.id
+              },
+              card_number: card.card_number,
+              set_name: card.set_name,
+              set_year: form.setYear,
+              team: {
+                name: card.team_name,
+                sport_id: form.sport.id
+              },
+              seq: card.seq,
+              other: card.other
+            };
           });
-          addAlert(<Alert severity="success">Card added successfully!</Alert>);
+          await cardService.createCard(newCards);
+          addAlert(<Alert severity="success">Cards added successfully!</Alert>);
+        }
+        else {
+          if (editMode)
+          {
+            await cardService.updateCard(id,
+            {
+              brand_id: form.brand.id,
+              player: {
+                full_name: form.player.full_name,
+                sport_id: form.sport.id
+              },
+              card_number: form.cardNumber,
+              set_name: form.setName,
+              set_year: form.setYear,
+              team: {
+                name: form.team.name,
+                sport_id: form.sport.id
+              },
+              seq: form.seq,
+              notes: form.notes,
+              front_of_card: cardFront,
+              back_of_card: cardBack
+            });
+            addAlert(<Alert severity="success">Card updated successfully!</Alert>);
+          }
+          else
+          {
+            await cardService.createCard(
+              {
+                brand_id: form.brand.id,
+                player: {
+                  full_name: form.player.full_name,
+                  sport_id: form.sport.id
+                },
+                card_number: form.cardNumber,
+                set_name: form.setName,
+                set_year: form.setYear,
+                team: {
+                  name: form.team.name,
+                  sport_id: form.sport.id
+                },
+                seq: form.seq,
+                notes: form.notes,
+                front_of_card: cardFront,
+                back_of_card: cardBack
+              });
+              addAlert(<Alert severity="success">Card added successfully!</Alert>);
+          }
+        }
         if (form.addAnother)
         {
-          form.playerName = '';
+          form.player = '';
           form.cardNumber = '';
           cardNumberRef.current.focus();
         }
         else
         {
-          navigate('/app/cards');
+          let destination = ['/app/cards/', id].filter(Boolean).join('');
+          navigate(destination);
         }
       }
       catch (error) {
         console.log(error);
       }
     }
-  ,[addAlert, cardService, navigate, cardFront, cardBack])
+  ,[addAlert, cardService, navigate, cardFront, cardBack, editMode, id]);
+
   return (
     <Page
       className={classes.root}
@@ -150,76 +234,77 @@ const CardView = ({ cardService }) => {
           justifyContent="top"
           mt={3}
         >
-          <Formik
-            initialValues={{
-              playerName: '',
-              brand: '',
-              cardNumber: '',
-              setName: '',
-              setYear:2021,
-              addAnother: false,
-              addMultiple: false,
-              team:'',
-              seq:'',
-              notes:''
-            }}
-            validationSchema={
-              Yup.object().shape({
-                sport: Yup.string().required('Sport is required'),
-                brand: Yup.string().max(100).required('Brand is required'),
-                setYear: Yup.number().typeError('Year must be a number').min(1800, 'Too Low').required('Set Year is required'),
-                playerName: Yup.string().max(255).required('Player name is required'),
-                cardNumber: Yup.string().required('Card Number is required'),
-                setName: Yup.string().max(255).required('Set Name is required'),
-                seq: Yup.string().max(10).typeError('Seq must be a number'),
-              })
-            }
-            onSubmit={formSubmit}
+          <Card
+            className={classes.card}
           >
-            {({
-              errors,
-              handleBlur,
-              handleChange,
-              handleSubmit,
-              isSubmitting,
-              touched,
-              setFieldValue,
-              values
-            }) => (
-              <form onSubmit={handleSubmit}>
-                <Card>
-                  <CardHeader
-                    subheader="Add Card"
-                  />
-                  <Divider />
+            <CardHeader
+              subheader={editMode ? "Edit Card" : "Add Card"}
+            />
+            <Divider />
+            <Formik
+              enableReinitialize={true}
+              initialValues={initialFormValues}
+              validationSchema={
+                Yup.object().shape({
+                  sport: Yup.object().required('Sport is required'),
+                  brand: Yup.string().max(100).required('Brand is required'),
+                  setYear: Yup.number().typeError('Year must be a number').min(1800, 'Too Low').required('Set Year is required'),
+                  player: Yup.string().max(255)
+                    .when("addMultiple", {
+                      is: false,
+                      then: Yup.string().required('Player name is required')
+                    }),
+                  team: Yup.object()
+                    .when("addMultiple", {
+                      is: false,
+                      then: Yup.object().required('Team is required')
+                  }),
+                  cardNumber: Yup.string()
+                    .when("addMultiple", {
+                      is: false,
+                      then: Yup.string().required('Card Number is required')
+                    }),
+                  setName: Yup.string().max(255)
+                    .when("addMultiple", {
+                      is: false,
+                      then: Yup.string().required('Set Name is required')
+                    }),
+                  cards: Yup.array()
+                    .when("addMultiple", {
+                      is: true,
+                      then: Yup.array().required('You must select some cards')
+                    }),
+                  seq: Yup.string().max(10).typeError('Seq must be a number'),
+                })
+              }
+              onSubmit={formSubmit}
+            >
+              {({
+                errors,
+                handleBlur,
+                handleChange,
+                handleSubmit,
+                isSubmitting,
+                touched,
+                setFieldValue,
+                setFieldTouched,
+                values
+              }) => (
+                <form onSubmit={handleSubmit}>
                   <CardContent style={{minHeight:'650px'}}>
                     <Grid container spacing={1} >
                       <Grid item xs={6} md={3}>
-                      <Autocomplete 
-                        options={sports}
-                        autoHighlight
-                        autoSelect
-                        selectOnFocus
-                        getOptionLabel={option => option.abbr}
-                        onChange={(e, value) => {
-                          setFieldValue("sport", value);
-                        }}
-                        renderInput={(params) => 
-                        <TextField
-                          {...params}
+                      <AsyncAutocomplete
+                          name="sport"
+                          fetch={cardService.getSports}
+                          value={values.sport}
+                          label="Sport"
+                          setFieldValue={setFieldValue}
+                          selectLabel="abbr"
+                          onBlur={handleBlur}
                           error={Boolean(touched.sport && errors.sport)}
                           helperText={touched.sport && errors.sport}
-                          label="Sport"
-                          margin="normal"
-                          name="sport"
-                          onBlur={handleBlur}
-                          onChange={handleChange}
-                          value={values.sport}
-                          variant="outlined"
-                          fullWidth
-                          autoFocus
-                        />}
-                      />
+                        />
                       </Grid>
                       <Grid item xs={6} md={3}>
                       <Autocomplete 
@@ -231,6 +316,7 @@ const CardView = ({ cardService }) => {
                         onChange={(e, value) => {
                           setFieldValue("setYear", value);
                         }}
+                        value={values.setYear}
                         renderInput={(params) => 
                         <TextField
                           {...params}
@@ -241,27 +327,29 @@ const CardView = ({ cardService }) => {
                           name="setYear"
                           onBlur={handleBlur}
                           onChange={handleChange}
-                          value={values.setYear}
+                          
                           variant="outlined"
                           fullWidth
                         />}
                       />
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <TextField 
-                        error={Boolean(touched.brand && errors.brand)}
-                        helperText={touched.brand && errors.brand}
-                        label="Brand"
-                        margin="normal"
-                        name="brand"
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        value={values.brand}
-                        variant="outlined"
-                        fullWidth
-                      />
+                      <AsyncAutocomplete
+                          name="brand"
+                          fetch={cardService.findBrands}
+                          fetchParams={values.sport?.abbr}
+                          value={values.brand}
+                          label="Brand"
+                          setFieldValue={setFieldValue}
+                          selectLabel="name"
+                          onBlur={handleBlur}
+                          error={Boolean(touched.brand && errors.brand)}
+                          helperText={touched.brand && errors.brand}
+                        />
                       </Grid>
                   </Grid>
+                  {editMode ? null :
+                  
                   <FormControlLabel
                       control={
                         <Checkbox
@@ -272,7 +360,22 @@ const CardView = ({ cardService }) => {
                         />
                       }
                       label="Select Cards from Checklist"
-                      />
+                  />}
+                    {Boolean(touched.cards && errors.cards) ? 
+                      <Typography color="error">{errors.cards}</Typography> : null}
+                    {editMode ? null :
+                    <Grid container className={clsx({[classes.hidden]: !values.addMultiple})}>
+                      <Grid item xs={12}>
+                        <ChecklistTableInput
+                          name="cards"
+                          fetch={cardService.getChecklist}
+                          brand={values.brand}
+                          year={values.setYear}
+                          onChange={setFieldValue}
+                          onTouch={setFieldTouched}
+                        />
+                      </Grid>
+                    </Grid>}
                     <Grid 
                       container 
                       spacing={1}
@@ -280,28 +383,27 @@ const CardView = ({ cardService }) => {
                     >
                       <Grid item xs={4} sm={4}>
                         <TextField
-                        error={Boolean(touched.setName && errors.setName)}
-                        helperText={touched.setName && errors.setName}
-                        label="Set Name"
-                        margin="normal"
-                        name="setName"
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        value={values.setName}
-                        variant="outlined"
-                        fullWidth
-                      />
+                          error={Boolean(touched.setName && errors.setName)}
+                          helperText={touched.setName && errors.setName}
+                          label="Set Name"
+                          margin="normal"
+                          name="setName"
+                          onBlur={handleBlur}
+                          onChange={handleChange}
+                          value={values.setName}
+                          variant="outlined"
+                          fullWidth
+                        />
                       </Grid>
                       <Grid item xs={4} sm={2}>
-                        <TextField
+                        <ContainedTextField
                           error={Boolean(touched.cardNumber && errors.cardNumber)}
                           fullWidth
                           helperText={touched.cardNumber && errors.cardNumber}
                           label="Card Number"
                           margin="normal"
                           name="cardNumber"
-                          onBlur={handleBlur}
-                          onChange={handleChange}
+                          setFieldValue={setFieldValue}
                           value={values.cardNumber}
                           variant="outlined"
                           type="text"
@@ -309,18 +411,16 @@ const CardView = ({ cardService }) => {
                         />
                       </Grid>
                       <Grid item xs={8} sm={6}>
-                        <TextField
-                          error={Boolean(touched.playerName && errors.playerName)}
-                          fullWidth
-                          helperText={touched.playerName && errors.playerName}
+                        <AsyncAutocomplete
+                          name="player"
+                          fetch={cardService.findPlayers}
+                          fetchParams={values.sport?.abbr}
+                          value={values.player}
                           label="Player"
-                          margin="normal"
-                          name="playerName"
-                          onBlur={handleBlur}
-                          onChange={handleChange}
-                          type="text"
-                          variant="outlined"
-                          value={values.playerName}
+                          setFieldValue={setFieldValue}
+                          selectLabel="full_name"
+                          error={Boolean(touched.player && errors.player)}
+                          helperText={touched.player && errors.player}
                         />
                       </Grid>
                     </Grid>
@@ -330,44 +430,42 @@ const CardView = ({ cardService }) => {
                       className={clsx({[classes.hidden]: values.addMultiple})}
                     >
                       <Grid item xs={4} sm={4}>
-                        <TextField
-                        error={Boolean(touched.team && errors.team)}
-                        helperText={touched.team && errors.team}
-                        label="Team"
-                        margin="normal"
-                        name="team"
-                        onBlur={handleBlur}
-                        onChange={handleChange}
-                        value={values.team}
-                        variant="outlined"
-                        fullWidth
-                      />
+                      <AsyncAutocomplete
+                          name="team"
+                          fetch={cardService.findTeams}
+                          fetchParams={values.sport?.abbr}
+                          value={values.team}
+                          label="Team"
+                          setFieldValue={setFieldValue}
+                          selectLabel="name"
+                          error={Boolean(touched.team && errors.team)}
+                          helperText={touched.team && errors.team}
+                        />
+                        
                       </Grid>
                       <Grid item xs={4} sm={2}>
-                        <TextField
+                        <ContainedTextField
                           error={Boolean(touched.seq && errors.seq)}
                           fullWidth
                           helperText={touched.seq && errors.seq}
                           label="Seq"
                           margin="normal"
                           name="seq"
-                          onBlur={handleBlur}
-                          onChange={handleChange}
+                          setFieldValue={setFieldValue}
                           value={values.seq}
                           variant="outlined"
                           type="string"
                         />
                       </Grid>
                       <Grid item xs={8} sm={6}>
-                        <TextField
+                        <ContainedTextField
                           error={Boolean(touched.notes && errors.notes)}
                           fullWidth
                           helperText={touched.notes && errors.notes}
                           label="Notes"
                           margin="normal"
                           name="notes"
-                          onBlur={handleBlur}
-                          onChange={handleChange}
+                          setFieldValue={setFieldValue}
                           type="text"
                           variant="outlined"
                           value={values.notes}
@@ -388,30 +486,12 @@ const CardView = ({ cardService }) => {
                         />
                       </Grid>
                     </Grid>
-                    <Grid container className={clsx({[classes.hidden]: !values.addMultiple})}>
-                      <Grid item xs={12}>
-                        <ChecklistLoad data={cards}/>
-                      </Grid>
-                    </Grid>
                   <Divider />
                   <Box
                     display="flex"
                     justifyContent="flex-end"
                     p={2}
                   >
-                    <Button
-                      color="primary"
-                      disabled={isSubmitting}
-                      size="large"
-                      type="submit"
-                      variant="contained"
-                      onClick={(e)=>{
-                        setFieldValue('addAnother', true);
-                        handleSubmit(e, cardFront, cardBack);
-                      }}
-                    >
-                      Save and Add Another
-                    </Button>
                     <Button
                       color="primary"
                       disabled={isSubmitting}
@@ -424,14 +504,14 @@ const CardView = ({ cardService }) => {
                         handleSubmit(e, cardFront, cardBack);
                       }}
                     >
-                      Add to Collection
+                      {editMode ? 'Update Card' : 'Add to Collection'}
                     </Button>
                   </Box>
                 </CardContent>
-              </Card>
-            </form>
-            )}
-          </Formik>
+              </form>
+              )}
+            </Formik>
+          </Card>
         </Box>
       </Container>
     </Page>

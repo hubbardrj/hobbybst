@@ -37,11 +37,13 @@ const useApiService = () => {
     const post = (path, payload, config) => {
         return axiosInstance.post(path, payload, config);
     }
-
+    const put = (path, payload, config) => {
+        return axiosInstance.put(path, payload, config);
+    }
     const redirectTo = (document, path) => {
         document.location = path
     }
-    return {get, post}
+    return {get, post, put}
 }
 
 export default useApiService;
