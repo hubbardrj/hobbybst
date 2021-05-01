@@ -25,7 +25,7 @@ SECRET_KEY = 'c81hy$^6kf$_^_81yk5ag(1945)k1$fp0$+mb084p5sw8pwg*g'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['hobbybst-dev.us-west-2.elasticbeanstalk.com']
 
 
 # Application definition
