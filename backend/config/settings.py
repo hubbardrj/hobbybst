@@ -170,7 +170,16 @@ if 'RDS_DB_NAME' in os.environ:
         }
     }
 else:
-    pass
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'tester',
+            'USER': 'hi',
+            'PASSWORD': 'nope',
+            'HOST': '127.1.1.79',
+            'PORT': '7979',
+        }
+    }
 #########################################
     ##  IMPORT LOCAL SETTINGS ##
 #########################################
