@@ -157,7 +157,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-print('DB NAME:'+os.environ['RDS_DB_NAME'])
 print('DB NAME:'+os.environ['DJANGO_SETTINGS_MODULE'])
 
 if 'RDS_DB_NAME' in os.environ:
@@ -172,20 +171,12 @@ if 'RDS_DB_NAME' in os.environ:
         }
     }
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'tester',
-            'USER': 'hi',
-            'PASSWORD': 'nope',
-            'HOST': '127.1.1.79',
-            'PORT': '7979',
-        }
-    }
-#########################################
+    #########################################
     ##  IMPORT LOCAL SETTINGS ##
-#########################################
-try:
-    from .local_settings import *
-except ImportError:
-    pass
+    #########################################
+    try:
+        from .local_settings import *
+    except ImportError:
+        pass
+
+print(DATABASES)
