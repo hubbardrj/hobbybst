@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     'apps.sportdata',
     'apps.users'
 ]
-SITE_ID = 3
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -173,10 +172,12 @@ if 'RDS_DB_NAME' in os.environ:
     CORS_ORIGIN_WHITELIST = [
         'http://hobbybst.s3-website-us-west-2.amazonaws.com',
     ]
+    SITE_ID = 0
 else:
     #########################################
     ##  IMPORT LOCAL SETTINGS ##
     #########################################
+    SITE_ID = 3
     try:
         from .local_settings import *
     except ImportError:

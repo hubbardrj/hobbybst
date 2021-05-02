@@ -126,7 +126,7 @@ const LoginView = () => {
                     md={6}
                   >
                     <GoogleLogin
-                      clientId="288604885710-dj3gld8ig6nh3h284gpcfcrdt6t24nh1.apps.googleusercontent.com"
+                      clientId="414476813628-mp9o9cqrcrtd6511vdf5oscl4b2c363u.apps.googleusercontent.com"
                       buttonText="LOGIN WITH GOOGLE"
                       onSuccess={responseGoogle}
                       onFailure={responseGoogle}
