@@ -170,6 +170,9 @@ if 'RDS_DB_NAME' in os.environ:
             'PORT': os.environ['RDS_PORT'],
         }
     }
+    CORS_ORIGIN_WHITELIST = [
+        'http://hobbybst.s3-website-us-west-2.amazonaws.com/',
+    ]
 else:
     #########################################
     ##  IMPORT LOCAL SETTINGS ##
