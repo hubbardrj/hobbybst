@@ -172,7 +172,7 @@ if 'RDS_DB_NAME' in os.environ:
     CORS_ORIGIN_WHITELIST = [
         'http://hobbybst.s3-website-us-west-2.amazonaws.com',
     ]
-    SITE_ID = 0
+    SITE_ID = 1
 else:
     #########################################
     ##  IMPORT LOCAL SETTINGS ##
