@@ -34,7 +34,7 @@ const LoginView = () => {
   const location = useLocation();
 
   const dispatch = useAuthDispatch();
-  const { errorMessage, token } = useAuthState();
+  const { errorMessage, token, csrf } = useAuthState();
 
   let { from } = location.state || { from: { pathname: "/app/dashboard" } };
 
@@ -71,7 +71,8 @@ const LoginView = () => {
               password: Yup.string().max(255).required('Password is required')
             })}
             onSubmit={(form) => {
-              let payload = {username:form.email, password:form.password}
+              console.log(csrf);
+              let payload = {username:form.email, password:form.password, csrf: csrf}
               authLogin(dispatch, payload);
             }}
           >

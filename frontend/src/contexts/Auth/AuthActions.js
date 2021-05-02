@@ -4,14 +4,14 @@ import http from "../../services/http-common";
 
 const SESSION_DURATION = settings.SESSION_DURATION;
 
-const getCSRF = () => {
+const getCSRF = (dispatch) => {
     http().get("/auth/csrf/", {
       credentials: "include",
     })
     .then((res) => {
         console.log(res);
       let csrfToken = res.headers['x-csrftoken'];
-      return csrfToken;
+      dispatch({ type: actionTypes.SET_CSRF, payload:{csrf:csrfToken}});
     })
     .catch((err) => {
       console.log(err);
@@ -24,6 +24,9 @@ export const authLogin = (dispatch, loginPayload) => {
         http().post("/auth/login/", {
             username: loginPayload.username,
             password: loginPayload.password
+        }, 
+        {
+            headers: {"X-CSRFToken": loginPayload.csrf,}
         })
         .then(res => {
             const key = res.data.key;
@@ -92,7 +95,7 @@ export const authCheckState = (dispatch) => {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     console.log("checking state");
     if (!token) {
-        dispatch({ type: actionTypes.AUTH_LOGOUT, payload:{csrf: getCSRF()} });
+        dispatch({ type: actionTypes.AUTH_LOGOUT, payload:{csrf: getCSRF(dispatch)} });
     } else {
         dispatch({ type: actionTypes.AUTH_SUCCESS, payload:{token:token, user:currentUser}});
     }

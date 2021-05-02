@@ -41,7 +41,6 @@ export const AuthReducer = (initialState, action) => {
         ...initialState,
         user: "",
         token: "",
-        csrf: action.payload.csrf,
         isLoggedin: false,
         loading: false,
         errorMessage: null
@@ -58,6 +57,11 @@ export const AuthReducer = (initialState, action) => {
       return {
         ...initialState,
         user: action.payload.user,
+      };
+    case actionTypes.SET_CSRF:
+      return {
+        ...initialState,
+        csrf: action.payload.csrf,
       };
     default:
       throw new Error(`Unhandled action type: ${action.type}`);
