@@ -55,7 +55,7 @@ const Account = () => {
       actions.updateProfile(dispatch, response.data);
     }
     catch (error) {
-
+      console.log(error)
     }
   };
 

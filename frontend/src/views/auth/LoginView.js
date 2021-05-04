@@ -47,7 +47,7 @@ const LoginView = () => {
   
   const responseGoogle = (response) => {
     console.log(response)
-    googleAuthLogin(dispatch, response.accessToken)
+    googleAuthLogin(dispatch, csrf, response.accessToken)
   }
   return (
     <Page

@@ -9,7 +9,6 @@ const getCSRF = (dispatch) => {
       credentials: "include",
     })
     .then((res) => {
-        console.log(res);
       let csrfToken = res.headers['x-csrftoken'];
       dispatch({ type: actionTypes.SET_CSRF, payload:{csrf:csrfToken}});
     })
@@ -49,11 +48,14 @@ export const authLogin = (dispatch, loginPayload) => {
         dispatch({ type: actionTypes.AUTH_FAIL, error: error });
     }
 }
-export const googleAuthLogin = (dispatch, accesstoken) => {
+export const googleAuthLogin = (dispatch, csrf, accesstoken) => {
     try {
         dispatch({ type: actionTypes.AUTH_START});
         http().post("/auth/google/", {
             access_token: accesstoken,
+        }, 
+        {
+            headers: {"X-CSRFToken": csrf,}
         })
         .then(res => {
             console.log(res);

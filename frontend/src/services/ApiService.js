@@ -1,6 +1,6 @@
 import http from './http-common';
 import { useNavigate } from 'react-router-dom';
-import { logout, useAuthDispatch } from '../contexts/Auth';
+import { logout, useAuthDispatch, useAuthState } from '../contexts/Auth';
 
 const useApiService = () => {
     const navigate = useNavigate();
