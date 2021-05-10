@@ -170,7 +170,7 @@ if 'RDS_DB_NAME' in os.environ:
             'PORT': os.environ['RDS_PORT'],
         }
     }
-    CORS_ALLOWED_ORIGINS = ['http://hobbybst.richardjhubbard.com',]
+    CORS_ALLOWED_ORIGINS = ['http://hobbybst.richardjhubbard.com','http://hobbybst-dev.us-west-2.elasticbeanstalk.com']
     SESSION_COOKIE_SECURE = True
     CORS_COOKIE_SECURE = True
     SITE_ID = 4
