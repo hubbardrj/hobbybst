@@ -26,7 +26,7 @@ SECRET_KEY = 'c81hy$^6kf$_^_81yk5ag(1945)k1$fp0$+mb084p5sw8pwg*g'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['hobbybst-dev.us-west-2.elasticbeanstalk.com']
+ALLOWED_HOSTS = ['hobbyapi.richardjhubbard.com']
 
 
 # Application definition
@@ -170,7 +170,9 @@ if 'RDS_DB_NAME' in os.environ:
             'PORT': os.environ['RDS_PORT'],
         }
     }
-    CORS_ALLOWED_ORIGINS = ['http://hobbybst.s3-website-us-west-2.amazonaws.com',]
+    CORS_ALLOWED_ORIGINS = ['http://hobbybst.richardjhubbard.com/',]
+    SESSION_COOKIE_SECURE = True
+    CORS_COOKIE_SECURE = True
     SITE_ID = 4
 else:
     #########################################

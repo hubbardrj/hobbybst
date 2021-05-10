@@ -6,7 +6,7 @@ switch (process.env.NODE_ENV) {
         break;
     case 'production':
         //API_SERVER_VAL = process.env.REACT_APP_API_SERVER;
-        API_SERVER_VAL = 'http://hobbybst-dev.us-west-2.elasticbeanstalk.com'
+        API_SERVER_VAL = 'https://hobbyapi.richardjhubbard.com'
         break;
     default:
         API_SERVER_VAL = 'http://localhost:8000';
