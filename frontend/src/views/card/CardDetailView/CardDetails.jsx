@@ -52,8 +52,9 @@ const CardDetails = ({
     >
       <Grid item xs={6} sm={3}>
         <Avatar variant='square' style={{ width: '100%', height: '100%' }}>
-          <AccountBoxSharpIcon style={{ fontSize: '14.188rem' }} />
-          {/* <img src='/static/images/avatars/avatar_1.png' alt='Card Front' height='100%' width='100%'/> */}
+          { card.front_of_card === "" ?
+            <AccountBoxSharpIcon style={{ fontSize: '14.188rem' }} /> :
+          <img src={card.front_of_card} alt='Card Front' height='100%' width='100%'/>}
         </Avatar>
       </Grid>
       <Grid item xs={12} sm={9} container spacing={0} justify="space-between" direction="row">

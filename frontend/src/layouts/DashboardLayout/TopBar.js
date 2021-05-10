@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { NavLink as RouterLink } from 'react-router-dom';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import {
   AppBar,
   Badge,
   Box,
+  Button,
   Hidden,
   IconButton,
   Toolbar,
@@ -17,11 +18,19 @@ import InputIcon from '@material-ui/icons/Input';
 import Logo from 'src/components/Logo';
 import { useAuthDispatch, logout } from '../../contexts/Auth';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   root: {},
   avatar: {
     width: 60,
     height: 60
+  },
+  button: {
+    color: '#fff',
+    marginRight: '1em',
+    borderRadius: 0
+  },
+  active: {
+    borderBottom: '2px solid #fb9224'
   }
 }));
 
@@ -45,7 +54,27 @@ const TopBar = ({
           <Logo />
         </RouterLink>
         <Box flexGrow={1} />
-        <Hidden mdDown>
+        <Hidden smDown>
+        <Button
+            activeClassName={classes.active}
+            className={classes.button}
+            component={RouterLink}
+            to='/app/dashboard'
+          >
+            <span className={classes.title}>
+              Dashboard
+            </span>
+          </Button>
+          <Button
+            activeClassName={classes.active}
+            className={classes.button}
+            component={RouterLink}
+            to='/app/cards'
+          >
+            <span className={classes.title}>
+              Collection
+            </span>
+          </Button>
           <IconButton color="inherit">
             <Badge
               badgeContent={notifications.length}
@@ -59,7 +88,7 @@ const TopBar = ({
             <InputIcon />
           </IconButton>
         </Hidden>
-        <Hidden lgUp>
+        <Hidden mdUp>
           <IconButton
             color="inherit"
             onClick={onMobileNavOpen}

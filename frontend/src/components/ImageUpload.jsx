@@ -10,7 +10,7 @@ import { makeStyles } from '@material-ui/styles';
 import LabeledOutline from './LabeledOutline';
 import Cropper from 'react-easy-crop';
 import clsx from 'clsx';
-import getCroppedImg from './cropImage';
+import getCroppedImg from '../utils/cropImage';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -63,10 +63,8 @@ const useStyles = makeStyles((theme) => ({
     }
   }));
   
-const ImageUpload = (props) => {
-    console.log(props);
+const ImageUpload = ({value, setImageUrl, ...props}) => {
     const inputEl = useRef(null);
-    const [imgSrc, setImgSrc] = useState(null);
     const [showPicker, setShowPicker] = useState(true);
     const [cropperEnabled, setCropperEnabled] = useState(false);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
@@ -82,29 +80,30 @@ const ImageUpload = (props) => {
 
     const showCroppedImage = useCallback(async () => {
         try {
+            console.log('being crop');
           const croppedImage = await getCroppedImg(
-            imgSrc,
+            value,
             croppedAreaPixels,
             rotation
           )
-          setImgSrc(croppedImage);
+          console.log('end crop');
+          setImageUrl(croppedImage);
           setCropperEnabled(false);
         } catch (e) {
           console.error(e)
         }
-      }, [croppedAreaPixels, rotation, imgSrc]);
+      }, [croppedAreaPixels, rotation, value, setImageUrl]);
 
     const onImageChange = useCallback((event) => {
         if (event.target.files && event.target.files[0]) {
             let reader = new FileReader();
             reader.onload = (e) => {
-                setImgSrc(e.target.result);
-                props.setImageUrl('HELLLO MCFLY');
+                setImageUrl(e.target.result);
             }
             reader.readAsDataURL(event.target.files[0]);
             setShowPicker(false);
         }
-     },[props]);
+     },[setImageUrl]);
 
     const toggleCropper = () => {
         setCropperEnabled(!cropperEnabled);
@@ -113,7 +112,7 @@ const ImageUpload = (props) => {
         setShowPicker(val);
     }
     const removeImage = () => {
-        setImgSrc(null);
+        setImageUrl(null);
     }
     return (
         <Box
@@ -122,7 +121,6 @@ const ImageUpload = (props) => {
             justifyContent="center"
             alignItems="center"
             >
-                {console.log('image render')}
             <LabeledOutline label={props.label} className={classes.root}>
             <Box>
                 <Box
@@ -135,12 +133,12 @@ const ImageUpload = (props) => {
                     onMouseLeave={()=>toggleHover(false)}>
                     
                     <img 
-                        src={imgSrc} 
+                        src={value} 
                         className={clsx([classes.preview], {[classes.hidden]: cropperEnabled})} 
                         alt=''
                     />
                     { cropperEnabled && <Cropper
-                        image={imgSrc}
+                        image={value}
                         crop={crop}
                         rotation={rotation}
                         zoom={zoom}
@@ -151,13 +149,13 @@ const ImageUpload = (props) => {
                         onZoomChange={setZoom}
                     />}
                     <Button
-                        className={clsx("btn-choose", {[classes.hidden]: (imgSrc && !showPicker) || cropperEnabled})}
+                        className={clsx("btn-choose", {[classes.hidden]: (value && !showPicker) || cropperEnabled})}
                         component="label" 
                         color="primary"
                         variant="contained"
                         style={{position:"absolute"}}
                     >
-                        { imgSrc ? 'Change Photo' : 'Choose Photo' }
+                        { value ? 'Change Photo' : 'Choose Photo' }
                         <input
                         id="btn-upload"
                         name="btn-upload"
@@ -175,7 +173,7 @@ const ImageUpload = (props) => {
                     alignItems="center"
                     position="relative"
                     p={1}
-                    className={clsx([classes.imageControls], {[classes.hidden]: !imgSrc || cropperEnabled})}
+                    className={clsx([classes.imageControls], {[classes.hidden]: !value || cropperEnabled})}
                     >
                     <Button
                         variant="outlined"

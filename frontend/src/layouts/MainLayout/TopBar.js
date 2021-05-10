@@ -13,6 +13,9 @@ import { useAuthState, useAuthDispatch, logout } from '../../contexts/Auth'
 
 const useStyles = makeStyles(({
   root: {},
+  button: {
+    color: '#fff'
+  },
   toolbar: {
     height: 64
   }

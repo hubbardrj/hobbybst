@@ -1,6 +1,6 @@
 import http from './http-common';
 import { useNavigate } from 'react-router-dom';
-import { logout, useAuthDispatch, useAuthState } from '../contexts/Auth';
+import { logout, useAuthDispatch } from '../contexts/Auth';
 
 const useApiService = () => {
     const navigate = useNavigate();
@@ -38,6 +38,7 @@ const useApiService = () => {
         return axiosInstance.post(path, payload, config);
     }
     const put = (path, payload, config) => {
+        console.log(getCookie('csrftoken'));
         return axiosInstance.put(path, payload, config);
     }
     const redirectTo = (document, path) => {
@@ -45,5 +46,11 @@ const useApiService = () => {
     }
     return {get, post, put}
 }
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
 
 export default useApiService;

@@ -44,9 +44,31 @@ const useStyles = makeStyles((theme) => ({
     display:"none"
   }
 }));
-
+const createPayload = (form) => {
+  let payload = {
+    brand_id: form.brand.id,
+    player_name: form.player.full_name ? form.player.full_name : form.player_name,
+    player: {
+      full_name: form.player.full_name ? form.player.full_name : form.player_name,
+      sport_id: form.sport.id
+    },
+    card_number: form.cardNumber,
+    set_name: form.setName,
+    set_year: form.setYear,
+    team: {
+      name: form.team.name,
+      sport_id: form.sport.id
+    },
+    seq: form.seq,
+    notes: form.notes,
+    front_of_card: form.frontImageUrl,
+    back_of_card: form.backImageUrl
+  };
+  return payload;
+}
 const CardView = ({ 
   cardService,
+  fileService,
   editMode = false 
   }) => {
   const classes = useStyles();
@@ -61,6 +83,7 @@ const CardView = ({
 
   const [initialFormValues, setInitialFormValues] = useState({
     player: '',
+    player_name: '',
     brand: '',
     cardNumber: '',
     setName: '',
@@ -72,6 +95,8 @@ const CardView = ({
     seq:'',
     notes:'',
     cards:[],
+    frontImageUrl:'',
+    backImageUrl:'',
   });
 
 
@@ -81,24 +106,28 @@ const CardView = ({
         if (editMode) {
           const response = await cardService.get(id);
           const card = response.data;
-
           setInitialFormValues(prevState => (
             {
               ...prevState,
               brand: {id: card.brand.id,
-                name: card.brand.name},
+              name: card.brand.name},
               setName: card.set_name,
               setYear: card.set_year,
               cardNumber: card.card_number,
-              player: card.player,
+              player_name: card.player_name,
+              player: card.player ? card.player : card.player_name,
               team: card.team,
               sport:{
                 id: card.brand.sport_id,
                 abbr:card.team.sport},
               seq:card.seq,
-              notes:card.notes
+              notes:card.notes,
+              frontImageUrl:card.front_of_card,
+              backImageUrl:card.back_of_card,
             })
           );
+          setCardFront(card.front_of_card);
+          setCardBack(card.back_of_card);
         }
       }
       catch (error) {
@@ -126,6 +155,7 @@ const CardView = ({
           const newCards = form.cards.map(card => {
             return {
               brand_id: form.brand.id,
+              player_name: card.player_name,
               player: {
                 full_name: card.player_name,
                 sport_id: form.sport.id
@@ -145,51 +175,28 @@ const CardView = ({
           addAlert(<Alert severity="success">Cards added successfully!</Alert>);
         }
         else {
+          if (cardFront && cardFront !== form.frontImageUrl)
+          {
+            let file = await fileService.convertUrltoFile(cardFront, 'front');
+            let fileUrl = await fileService.uploadToS3(file, 'jpg');
+            form.frontImageUrl = fileUrl;
+          }
+          if (cardBack && cardBack !== form.backImageUrl)
+          {
+            let file = await fileService.convertUrltoFile(cardBack, 'back');
+            let fileUrl = await fileService.uploadToS3(file, 'jpg');
+            form.backImageUrl = fileUrl;
+          }
           if (editMode)
           {
-            await cardService.updateCard(id,
-            {
-              brand_id: form.brand.id,
-              player: {
-                full_name: form.player.full_name,
-                sport_id: form.sport.id
-              },
-              card_number: form.cardNumber,
-              set_name: form.setName,
-              set_year: form.setYear,
-              team: {
-                name: form.team.name,
-                sport_id: form.sport.id
-              },
-              seq: form.seq,
-              notes: form.notes,
-              front_of_card: cardFront,
-              back_of_card: cardBack
-            });
+            await cardService.updateCard(id,createPayload(form));
+            
             addAlert(<Alert severity="success">Card updated successfully!</Alert>);
           }
           else
           {
-            await cardService.createCard(
-              {
-                brand_id: form.brand.id,
-                player: {
-                  full_name: form.player.full_name,
-                  sport_id: form.sport.id
-                },
-                card_number: form.cardNumber,
-                set_name: form.setName,
-                set_year: form.setYear,
-                team: {
-                  name: form.team.name,
-                  sport_id: form.sport.id
-                },
-                seq: form.seq,
-                notes: form.notes,
-                front_of_card: cardFront,
-                back_of_card: cardBack
-              });
-              addAlert(<Alert severity="success">Card added successfully!</Alert>);
+            await cardService.createCard(createPayload(form));
+            addAlert(<Alert severity="success">Card added successfully!</Alert>);
           }
         }
         if (form.addAnother)
@@ -208,7 +215,7 @@ const CardView = ({
         console.log(error);
       }
     }
-  ,[addAlert, cardService, navigate, cardFront, cardBack, editMode, id]);
+  ,[addAlert, cardService, fileService, navigate, cardFront, cardBack, editMode, id]);
 
   return (
     <Page
@@ -327,7 +334,6 @@ const CardView = ({
                           name="setYear"
                           onBlur={handleBlur}
                           onChange={handleChange}
-                          
                           variant="outlined"
                           fullWidth
                         />}
@@ -477,12 +483,14 @@ const CardView = ({
                         <ImageUpload 
                             label="Front of Card"
                             setImageUrl={setCardFront}
+                            value={cardFront}
                         />
                       </Grid>
                       <Grid item xs={12} sm={6}>
                         <ImageUpload 
                           label="Back of Card"
                           setImageUrl={setCardBack}
+                          value={cardBack}
                         />
                       </Grid>
                     </Grid>

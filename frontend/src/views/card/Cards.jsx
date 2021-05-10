@@ -6,9 +6,11 @@ import CardListView from './CardListView'
 import CardAddView from './CardAddView'
 
 import useCardService from './CardService';
+import useFileService from '../../services/FileService';
 
 const Cards = () => {
     const [cardService] = useState(useCardService());
+    const [fileService] = useState(useFileService());
     
     return (
         <Routes>
@@ -18,7 +20,7 @@ const Cards = () => {
             />
             <Route
                 path="/add"
-                element={<CardAddView cardService={cardService} />}
+                element={<CardAddView cardService={cardService} fileService={fileService} />}
             />
             <Route
                 path="/:id"
@@ -26,7 +28,7 @@ const Cards = () => {
             />
             <Route
                 path="/:id/edit"
-                element={<CardAddView cardService={cardService} editMode={true} />}
+                element={<CardAddView cardService={cardService} fileService={fileService} editMode={true} />}
             />
         </Routes>
     )

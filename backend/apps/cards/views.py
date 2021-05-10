@@ -1,11 +1,13 @@
 # cards/views.py
+from botocore import serialize
 from rest_framework import generics, filters
 
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.serializers import Serializer
 
 from .models import Brand, Card, Checklist
-from .serializers import BrandSerializer, CardSerializer, ChecklistSerializer
+from .serializers import BrandSerializer, CardSerializer, ChecklistSerializer, FileUploadSerializer, S3ResponseSerializer
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -33,8 +35,8 @@ class ListCard(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        data = serializer.data[:]
-        return Response(data, status=status.HTTP_201_CREATED, headers=headers)
+        ##data = serializer.data[:]
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def post(self, request, *args, **kwargs):
         return super(ListCard, self).post(request, *args, **kwargs)
@@ -65,7 +67,7 @@ class ListChecklist(generics.ListAPIView):
             return queryset
         return None
 
-class BrandList(generics.ListAPIView):
+class ListBrand(generics.ListAPIView):
     authentication_classes = [SessionAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = BrandSerializer
@@ -77,3 +79,17 @@ class BrandList(generics.ListAPIView):
         if sport is not None:
             queryset = queryset.filter(sport__abbr__iexact=sport)
         return queryset
+
+class UploadFile(generics.CreateAPIView):
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [IsAuthenticated]
+    serializer_class = FileUploadSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = FileUploadSerializer(data=request.data)
+        if serializer.is_valid():
+            response = serializer.save(user=self.request.user)
+            output = S3ResponseSerializer(response)
+            return Response(output.data)
+        else:
+            return Response(serializer.errors, 400)

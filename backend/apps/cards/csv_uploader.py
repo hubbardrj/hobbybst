@@ -77,27 +77,3 @@ class CsvUploader:
                 print("Exeption: {}".format(e))
 
         return "records succesfully saved!"
-
-    def create_records(self):
-
-        if not self.valid:
-            raise Exception("The CSV is not valid")
-        
-        while True:
-            chunk = self.read_chunk()
-
-            if not chunk:
-                break
-
-            try:
-                with transaction.atomic():
-                    self.model.objects.bulk_create(chunk)
-            except IntegrityError as e:
-                for i in chunk:
-                    try:
-                        i.save()
-                    except IntegrityError:
-                        continue
-                print("Exeption: {}".format(e))
-
-        return "records succesfully saved!"

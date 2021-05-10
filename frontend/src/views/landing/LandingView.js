@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Box,
+  Card,
   Container,
   Typography,
   makeStyles
@@ -15,10 +16,8 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(3)
   },
   image: {
-    marginTop: 50,
     display: 'inline-block',
     maxWidth: '100%',
-    width: 560
   }
 }));
 
@@ -37,27 +36,13 @@ const LandingView = () => {
         justifyContent="center"
       >
         <Container maxWidth="md">
-          <Typography
-            align="center"
-            color="textPrimary"
-            variant="h1"
-          >
-            Welcome to Hobby BST
-          </Typography>
-          <Typography
-            align="center"
-            color="textPrimary"
-            variant="subtitle2"
-          >
-            Bear with us while we build something great.
-          </Typography>
-          <Box textAlign="center">
+          <Card>
             <img
               alt="Under development"
               className={classes.image}
-              src="/static/images/bear.jpg"
+              src="/static/images/hobby-landing.jpg"
             />
-          </Box>
+          </Card>
         </Container>
       </Box>
     </Page>

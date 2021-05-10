@@ -13,7 +13,8 @@ class Brand(models.Model):
 
 class Card(models.Model):
     brand = models.ForeignKey(Brand, null=True, on_delete=models.SET_NULL, related_name='brand')
-    player = models.ForeignKey(Player, null=True, on_delete=models.SET_NULL)
+    player_name = models.CharField(max_length=200, null=False)
+    player = models.ForeignKey(Player, null=True, blank=True, on_delete=models.SET_NULL)
     card_number = models.CharField(max_length=20, null=False)
     set_name = models.CharField(max_length=200)
     set_year = models.IntegerField()
@@ -25,7 +26,7 @@ class Card(models.Model):
     notes = models.CharField(max_length=50, default='', blank=True)
 
     def __str__(self):
-        return self.player.full_name
+        return self.player_name
 
 class Checklist(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
