@@ -172,8 +172,10 @@ if 'RDS_DB_NAME' in os.environ:
     }
     CSRF_TRUSTED_ORIGINS = ['hobbybst.richardjhubbard.com']
     CORS_ALLOWED_ORIGINS = ['https://hobbybst.richardjhubbard.com','http://hobbybst.s3-website-us-west-2.amazonaws.com']
+    SESSION_COOKIE_DOMAIN=".richardjhubbard.com"
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_DOMAIN=".richardjhubbard.com"
     SITE_ID = 4
 else:
     #########################################
