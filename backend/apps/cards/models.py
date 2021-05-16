@@ -30,10 +30,11 @@ class Card(models.Model):
 
 class Checklist(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
+    product = models.CharField(max_length=200)
     year = models.IntegerField()
 
     def __str__(self):
-        return self.brand.name
+        return self.product+' Checklist'
 
 class ChecklistCard(models.Model):
     Checklist = models.ForeignKey(Checklist, on_delete=models.CASCADE, related_name='checklist')

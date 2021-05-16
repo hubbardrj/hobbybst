@@ -9,11 +9,12 @@ class CsvImportForm(forms.ModelForm):
 
     class Meta:
         model = Checklist
-        fields = ('brand','year')
+        fields = ('brand','product','year')
 
     brand = forms.ModelChoiceField(
         queryset=Brand.objects.all(),
         widget=RelatedFieldWidgetCanAdd(Brand, related_url='admin:cards_brand_add'))
 
+    product = forms.TextInput()
     csv_file = forms.FileField()
 

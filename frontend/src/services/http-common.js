@@ -4,7 +4,7 @@ import * as settings from '../settings';
 export default () => {
   const axiosInstance = axios.create({
     xsrfCookieName: 'csrftoken',
-    xsrfHeaderName: "X-CSRFTOKEN",
+    xsrfHeaderName: "X-CSRFToken",
 
     baseURL: `${settings.API_SERVER}/api`,
     headers: {

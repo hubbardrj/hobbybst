@@ -94,6 +94,13 @@ function AsyncAutocomplete({
         }
         return filtered;
       }}
+      ListboxProps={
+        {
+          style:{
+              maxHeight: '200px',
+          }
+        }
+      }
       renderInput=
       {(params) => (
         <TextField
