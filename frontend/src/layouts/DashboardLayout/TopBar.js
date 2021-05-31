@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import {
   AppBar,
+  Avatar,
   Badge,
   Box,
   Button,
@@ -31,6 +32,13 @@ const useStyles = makeStyles((theme) => ({
   },
   active: {
     borderBottom: '2px solid #fb9224'
+  },
+  avatar: {
+    cursor: 'pointer',
+    width: 32,
+    height: 32,
+    fontSize: '1rem',
+    backgroundColor: 'firebrick'
   }
 }));
 
@@ -75,6 +83,16 @@ const TopBar = ({
               Collection
             </span>
           </Button>
+          
+          <IconButton 
+            color="inherit"
+            component={RouterLink}
+            to="/app/account"
+          >
+            <Avatar
+            className={classes.avatar}
+          >LR</Avatar>
+          </IconButton>
           <IconButton color="inherit">
             <Badge
               badgeContent={notifications.length}
